@@ -1,0 +1,63 @@
+diff --git a/software/beagleboneblack_video/SPI.cpp b/software/beagleboneblack_video/SPI.cpp
+index b098e99..4fd164c 100644
+--- a/software/beagleboneblack_video/SPI.cpp
++++ b/software/beagleboneblack_video/SPI.cpp
+@@ -34,9 +34,9 @@ int SpiOpenPort (int spi_device)
+ 
+ 
+ 	if (spi_device)
+-		*spi_cs_fd = open(std::string("/dev/spidev1.0").c_str(), O_RDWR);
++		*spi_cs_fd = open(std::string("/dev/spidev0.0").c_str(), O_RDWR);
+ 	else
+-		*spi_cs_fd = open(std::string("/dev/spidev1.0").c_str(), O_RDWR);
++		*spi_cs_fd = open(std::string("/dev/spidev0.0").c_str(), O_RDWR);
+ 
+ 	if (*spi_cs_fd < 0)
+ 	{
+diff --git a/software/beagleboneblack_video/main.cpp b/software/beagleboneblack_video/main.cpp
+index 264b0a2..9d3f2b5 100644
+--- a/software/beagleboneblack_video/main.cpp
++++ b/software/beagleboneblack_video/main.cpp
+@@ -18,12 +18,14 @@ int main( int argc, char **argv )
+ 	QApplication a( argc, argv );
+ 	
+ 	QWidget *myWidget = new QWidget;
+-	myWidget->setGeometry(400, 300, 340, 290);
++	//myWidget->setGeometry(400, 300, 340, 290);
++	myWidget->setWindowState(Qt::WindowFullScreen);
+ 
+ 	//create an image placeholder for myLabel
+ 	//fill the top left corner with red, just bcuz
+ 	QImage myImage;
+-	myImage = QImage(320, 240, QImage::Format_RGB888);
++	//myImage = QImage(480, 360, QImage::Format_RGB888);
++	myImage = QImage(640, 480, QImage::Format_RGB888);
+ 	QRgb red = qRgb(255,0,0);
+ 	for(int i=0;i<80;i++) {
+ 		for(int j=0;j<60;j++) {
+@@ -33,12 +35,13 @@ int main( int argc, char **argv )
+ 
+ 	//create a label, and set it's image to the placeholder
+ 	MyLabel myLabel(myWidget);
+-	myLabel.setGeometry(10, 10, 320, 240);
++//	myLabel.setGeometry(10, 10, 320, 240);
++	myLabel.setGeometry( 0,  0, 640, 480);
+ 	myLabel.setPixmap(QPixmap::fromImage(myImage));
+ 
+ 	//create a FFC button
+-	QPushButton *button1 = new QPushButton("Perform FFC", myWidget);
+-	button1->setGeometry(320/2-50, 290-35, 100, 30);
++//	QPushButton *button1 = new QPushButton("Perform FFC", myWidget);
++//	button1->setGeometry(320/2-50, 290-35, 100, 30);
+ 
+ 	//create a thread to gather SPI data
+ 	//when the thread emits updateImage, the label should update its image accordingly
+@@ -46,7 +49,7 @@ int main( int argc, char **argv )
+ 	QObject::connect(thread, SIGNAL(updateImage(QImage)), &myLabel, SLOT(setImage(QImage)));
+ 	
+ 	//connect ffc button to the thread's ffc action
+-	QObject::connect(button1, SIGNAL(clicked()), thread, SLOT(performFFC()));
++//	QObject::connect(button1, SIGNAL(clicked()), thread, SLOT(performFFC()));
+ 	thread->start();
+ 	
+ 	myWidget->show();
